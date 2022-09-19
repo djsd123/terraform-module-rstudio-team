@@ -1,0 +1,21 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+runcmd:
+
+  # update
+  - echo "Starting CloudInit userdata"
+  - yum update -y
+
+  # install tools
+  - amazon-linux-extras install -y epel lustre2.10
+  - yum groupinstall -y "Development Tools"
+
+  # mount fsx lustre
+  - mkdir -p /mnt/fsx
+  - mount -t ${FileSystemDNSName}@tcp:/fsx /mnt/fsx -o noatime,flock
+  - chown ec2-user:ec2-user /mnt/fsx
+
+  # Add Instance to ECS Cluster
+  - echo "ECS_CLUSTER=${ClusterName}" >> /etc/ecs/ecs.config
